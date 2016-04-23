@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <syslog.h>
+#include <stdio.h>
 
 // Courtesy:
 // http://www.danielhall.me/2010/01/writing-a-daemon-in-c/
@@ -16,6 +17,7 @@ main(int argc, char *argv[])
     /* If the pid is less than zero,
      *    something went wrong when forking */
     if (pid < 0) {
+        fprintf(stderr, "Failed to fork\n");
         exit(EXIT_FAILURE);
     }
 
@@ -23,11 +25,13 @@ main(int argc, char *argv[])
      *    than zero, then the clone was
      *       successful and we are the parent. */
     if (pid > 0) {
+        fprintf(stderr, "Parent's exiting.\n");
         exit(EXIT_SUCCESS);
     }
 
     /* If execution reaches this point we are the child */
     /* Set the umask to zero */
+    fprintf(stderr, "The child goes on...\n");
     umask(0);
 
     /* Open a connection to the syslog server */
@@ -42,8 +46,6 @@ main(int argc, char *argv[])
         syslog(LOG_ERR, "Could not create process group\n");
         exit(EXIT_FAILURE);
     }
-
-    syslog(LOG_INFO, 
 
     /* Change the current working directory */
     if ((chdir("/")) < 0) {
